@@ -1,7 +1,7 @@
 .gitignore
-Docker
+Docker/
 .env
 postgresql_railway.txt
-.ignore
+.ignore/
 requirements.txt
-/Project_3_asteroids/Docker/repo_to_clone/.env
+Docker/repo_to_clone/.env
