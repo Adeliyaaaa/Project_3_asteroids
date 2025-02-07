@@ -9,6 +9,8 @@ GOOGLE_API_KEY=os.getenv('google_api_key3')
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
+st.session_state["page"] = "Astro Bot"
+
 #Couleur de fond : 
 page_bg_img2 = """
 <style>

@@ -1,11 +1,14 @@
 import pandas as pd
 import streamlit as st
+import psycopg2
 from streamlit_option_menu import option_menu
-
+from database import get_data
 
 # Sélection entre accueil et photos
 st.set_page_config(page_title="Main page")
 st.title("Astéroïdes géocroiseurs")
+st.session_state["page"] = "Accueil"
+
 
 st.markdown(
     """
@@ -51,3 +54,25 @@ st.markdown("<p class='custom-text'>La notion de planète mineure est la notion 
 st.markdown("<p class='custom-text'>En astronomie, les astéroïdes géocroiseurs sont des astéroïdes évoluant à proximité de la Terre. Pour les nommer on utilise souvent l'abréviation ECA (de l'anglais Earth-Crossing Asteroids, astéroïdes croisant l'orbite de la Terre), astéroïdes dont l'orbite autour du Soleil croise celle de la Terre, ayant une distance aphélique inférieure à celle de Mars, soit 1,381 UA (valeur d'1,300 UA fixée par les spécialistes américains). Les NEA (Near-Earth Asteroids, astéroïdes proches de la Terre) sont aussi souvent, par abus et à tort, appelés en français géocroiseurs même si certains ne croisent pas l'orbite de la Terre</p>", unsafe_allow_html=True)
 
 
+df = get_data("""
+              SELECT 
+                nom, 
+                description, 
+                TO_CHAR(date_approche, 'YYYY') AS date_approche,
+                date_entree_athmospherique, 
+                lieu_impact 
+              FROM asteroids1 
+              WHERE lieu_impact is NOT NULL""")
+st.dataframe(df)
+
+
+if "page" not in st.session_state:
+    st.session_state["page"] = "Accueil"  
+
+if st.session_state["page"] == "Accueil":
+    st.sidebar.title("Filtres :")
+    date = df['date_approche'].unique()
+    selected_date = st.sidebar.selectbox("Choisissez une date :", date)
+
+    asteroide = df['nom'].unique()
+    selected_asteroide = st.sidebar.selectbox("Choisissez un astéroïde :", asteroide)

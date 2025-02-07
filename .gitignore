@@ -1,7 +1,10 @@
-.gitignore
 Docker/
 .env
 postgresql_railway.txt
 .ignore/
-requirements.txt
 Docker/repo_to_clone/.env
+mage_ai_work.ipynb
+nettoyage_merge.ipynb
+work.ipynb
+.streamlit/
+.streamlit/secrets.toml
