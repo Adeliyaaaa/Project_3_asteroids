@@ -8,6 +8,7 @@ def init_connection():
     return psycopg2.connect(**st.secrets["postgres"])
 
 # Fonction pour exécuter une requête et récupérer les données
+@st.cache_data
 def get_data(query):
     conn = init_connection()
     return pd.read_sql(query, conn)

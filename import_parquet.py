@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-df = pd.read_parquet("df_asteroides_partial1.parquet") # read csv file from your local
+df = pd.read_parquet(".ignore/df_asteroids_final.parquet")
 
 dbname = os.getenv("dbname")
 user = os.getenv("user")
