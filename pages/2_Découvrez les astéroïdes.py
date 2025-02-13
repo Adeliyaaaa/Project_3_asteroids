@@ -9,7 +9,12 @@ from database import get_data
 
 # Page configuration
 st.set_page_config(layout="wide")
-st.title("Découvrez les astéroïdes💥")
+
+st.markdown(f"""
+    <div style="background-color:rgba(5, 5, 8, 0.4); padding:5px; border-radius:8px; text-align:center;">
+    <h2 style="font-size:45px; font-weight: bold;"> Découvrez les astéroïdes💥 </h2>
+    </div> """, unsafe_allow_html=True)
+
 st.session_state["page"] = "Découvrez les astéroïdes"
 
 # CSS styling
@@ -420,7 +425,7 @@ with col3:
             <h1 style="font-size:15px; font-weight: normal;">{row['description']}</h1>  
             <h1 style="font-size:15px; font-weight: normal;"> Magnitude absolue: {row['magnitude_absolue']}</h1>  
             <h1 style="font-size:15px; font-weight: normal;"> Diamètre estimé: Min {round(row['diametre_estime_min_m'], 2)} (m), Max {round(row['diametre_estime_max_m'], 2)} (m)</h1>  
-            <h1 style="font-size:15px; font-weight: normal;"> Vitesse relative: {round(row['vitesse_relative_km_par_seconde'], 2)} (km/s) </h1>  
+            <h1 style="font-size:15px; font-weight: normal;"> Vitesse relative en {row['date_approche'].year}: {round(row['vitesse_relative_km_par_seconde'], 2)} (km/s) </h1>  
             <h1 style="font-size:15px; font-weight: normal;"> Type: {row['type']}</h1>  
         </div> """, unsafe_allow_html=True)
          
@@ -475,10 +480,10 @@ with col2:
         fig = px.line(filtered_df_ast, 
                   x='date_approche', 
                   y='vitesse_relative_km_par_seconde',
-                  title=f"Les dates quand l'astéroïde {latest_asteroid['nom']} passe près de la Terre et sa vitesse", 
+                  title=f"Dates quand l'astéroïde {latest_asteroid['nom']} passe près de la Terre et sa vitesse", 
                   labels={"date_approche": "Dates d'approche", "vitesse_relative_km_par_seconde":"Vitesse relative (km/s)"},
                   markers=True)
-        # Option 2 : Afficher toutes les dates disponibles
+        
         fig.update_xaxes(tickformat="%Y-%m-%d", tickvals=filtered_df_ast['date_approche'], tickangle=-45)
         # Affichage du graphique dans Streamlit
         fig.update_traces(line=dict(color='#C6AC8F', width=2))
@@ -490,17 +495,23 @@ with col2:
         title_x= 0.15,
         title_font=dict(size=18, color='#DDE2E7'))
         st.plotly_chart(fig, use_container_width=True)
+    
     else:
         random_asteroid_choisi = random_asteroid
-        row1 = random_asteroid_choisi.iloc[0]
-        fig = px.line(random_asteroid_choisi, 
+        row1 = random_asteroid_choisi.iloc[0] 
+        
+        # Filtrer les données pour l'astéroïde choisi  
+        filtered_df_random = df[df['nom'] == row1['nom']]  
+        filtered_df_random['date_approche'] = pd.to_datetime(filtered_df_random['date_approche'])
+
+        fig = px.line(filtered_df_random, 
                   x='date_approche', 
                   y='vitesse_relative_km_par_seconde',
                   title=f"Les dates quand l'astéroïde {row1['nom']} passe près de la Terre et sa vitesse", 
                   labels={"date_approche": "Dates d'approche", "vitesse_relative_km_par_seconde":"Vitesse relative (km/s)"},
                   markers=True)
-        # Option 2 : Afficher toutes les dates disponibles
-        fig.update_xaxes(tickformat="%Y-%m-%d", tickvals=random_asteroid['date_approche'], tickangle=-45)
+        
+        fig.update_xaxes(tickformat="%Y-%m-%d", tickvals=filtered_df_random['date_approche'], tickangle=-45)
         # Affichage du graphique dans Streamlit
         fig.update_traces(line=dict(color='#C6AC8F', width=2))
         fig.update_layout(
