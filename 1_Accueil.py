@@ -14,7 +14,6 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="Main page", layout="wide")
 st.session_state["page"] = "Accueil"
 
-
 st.markdown(
     """
     <style>
@@ -85,6 +84,7 @@ current_date = date.today()
 current_time = pd.Timestamp.now(tz='Europe/Paris').strftime('%H:%M')
 current_year = current_date.year
 
+
 df1 = get_data("""
             WITH cte_selection AS(
                 SELECT 
@@ -109,67 +109,72 @@ df1 = get_data("""
 df1.rename(columns={'nom_astéroïde': "Nom de l'astéroïde", 'date_utc' : 'Date approche (UTC)', 'heure_locale' : 'Heure locale', 
                     'potentiellement_dangeureux' : 'Potentiellement dangereux', 'surveillance_collisions' : 'Surveillance collisions'}, inplace=True)
 
-st.title("Dans le ciel d'aujourd'hui :")
+if not df1.empty:
+    st.title("Dans le ciel d'aujourd'hui :")
 
-df2 = get_data("""
-            with cte_nb_asteroids AS(
+    df2 = get_data("""
+                with cte_nb_asteroids AS(
+                    SELECT 
+                        id,
+                        COUNT(distinct nom) as nb_asteroids
+                        FROM asteroids1
+                        WHERE date_approche = CURRENT_DATE
+                        group by id
+                ),
+                cte_nb_surveillance AS(
+                    SELECT 
+                        id,
+                        COUNT(sentry_surveillance_collisions) as nb_surveillance
+                        FROM asteroids1
+                        WHERE sentry_surveillance_collisions = true and date_approche = CURRENT_DATE
+                        group by id
+                ),
+                cte_nb_dangerous AS(
+                    SELECT 
+                        id,
+                        COUNT(potentiellement_dangeureux) as nb_dangerous
+                        FROM asteroids1
+                        WHERE potentiellement_dangeureux = true and date_approche = CURRENT_DATE
+                        group by id
+                )
                 SELECT 
-                    id,
-                    COUNT(distinct nom) as nb_asteroids
-                    FROM asteroids1
-                    WHERE date_approche = CURRENT_DATE
-                    group by id
-            ),
-            cte_nb_surveillance AS(
-                SELECT 
-                    id,
-                    COUNT(sentry_surveillance_collisions) as nb_surveillance
-                    FROM asteroids1
-                    WHERE sentry_surveillance_collisions = true and date_approche = CURRENT_DATE
-                    group by id
-            ),
-            cte_nb_dangerous AS(
-                SELECT 
-                    id,
-                    COUNT(potentiellement_dangeureux) as nb_dangerous
-                    FROM asteroids1
-                    WHERE potentiellement_dangeureux = true and date_approche = CURRENT_DATE
-                    group by id
-            )
-            SELECT 
-                SUM(nb_asteroids) as nb_asteroids, 
-                SUM(nb_surveillance) as nb_surveillance, 
-                SUM(nb_dangerous) as nb_dangerous
-            FROM cte_nb_asteroids a 
-            left join cte_nb_surveillance s on s.id = a.id 
-            left join cte_nb_dangerous d on d.id = a.id;
-                        """)
-# Informations Nombre d'astéroïdes Dans le ciel d'aujourd'hui : 
-col1, col2 = st.columns([0.65, 0.35])
-with col1: 
-    styled_df = df1.style.set_properties(**{'background-color': '#050508', 'color': '#DDE2E7'})
-    st.dataframe(styled_df, hide_index=True, use_container_width=True)
+                    SUM(nb_asteroids) as nb_asteroids, 
+                    SUM(nb_surveillance) as nb_surveillance, 
+                    SUM(nb_dangerous) as nb_dangerous
+                FROM cte_nb_asteroids a 
+                left join cte_nb_surveillance s on s.id = a.id 
+                left join cte_nb_dangerous d on d.id = a.id;
+                            """)
+    # Informations Nombre d'astéroïdes Dans le ciel d'aujourd'hui : 
 
-with col2: 
-    st.markdown(f"""
-    <div style="background-color:#13151D; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center;">
-        <h2 style="font-size:16px;"> Nombre d'astéroïdes </h2>
-        <h1 style="font-size:16px;">{df2['nb_asteroids'].astype(int).sum()}</h1>
-        </div> """, unsafe_allow_html=True)
-    st.write("")
-    st.markdown(f"""
+    col1, col2 = st.columns([0.65, 0.35])
+    with col1: 
+        styled_df = df1.style.set_properties(**{'background-color': '#050508', 'color': '#DDE2E7'})
+        st.dataframe(styled_df, hide_index=True, use_container_width=True)
+
+    with col2: 
+        st.markdown(f"""
         <div style="background-color:#13151D; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center;">
-        <h2 style="font-size:16px;"> Potentiellement dangeureux : </h2>
-        <h1 style="font-size:16px;">{int(df2['nb_dangerous'].sum())}</h1>
-        </div> """, unsafe_allow_html=True)
-    st.write("")
-    st.markdown(f"""
-        <div style="background-color:#13151D; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center;">
-        <h2 style="font-size:16px;"> Astéroïdes surveillés: </h2>
-        <h1 style="font-size:16px;">{int(df2['nb_surveillance'].sum())}</h1>
-        </div> """, unsafe_allow_html=True)
+            <h2 style="font-size:16px;"> Nombre d'astéroïdes </h2>
+            <h1 style="font-size:16px;">{df2['nb_asteroids'].astype(int).sum()}</h1>
+            </div> """, unsafe_allow_html=True)
+        st.write("")
+        st.markdown(f"""
+            <div style="background-color:#13151D; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center;">
+            <h2 style="font-size:16px;"> Potentiellement dangeureux : </h2>
+            <h1 style="font-size:16px;">{int(df2['nb_dangerous'].sum())}</h1>
+            </div> """, unsafe_allow_html=True)
+        st.write("")
+        st.markdown(f"""
+            <div style="background-color:#13151D; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center;">
+            <h2 style="font-size:16px;"> Astéroïdes surveillés: </h2>
+            <h1 style="font-size:16px;">{int(df2['nb_surveillance'].sum())}</h1>
+            </div> """, unsafe_allow_html=True)
 
-st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
+else : 
+    st.title("Aujourd'hui il n'y a aucun astéroïde ...")
+
 
 # Filtres de la page : 
 if "page" not in st.session_state:
@@ -185,66 +190,80 @@ if st.session_state["page"] == "Accueil":
     
     st.sidebar.divider()  # Ajoute une séparation visuelle
 
-    # Filtre sélectionne astéroïde : 
-    st.sidebar.markdown(f"""<p style="font-size:25px; font-weight: 550; color: #DDE2E7">Filtre :</p> 
-                        </div> """, unsafe_allow_html=True)
-    asteroide = df1["Nom de l'astéroïde"].unique()
-    asteroide_with_blank = ["Choisissez un astéroïde :"] + list(asteroide)
-    selection = st.sidebar.selectbox(" ", asteroide_with_blank, key='selectbox_key')
-    if selection != "Choisissez un astéroïde :" :
+    if not df1.empty:
+        # Filtre sélectionne astéroïde : 
+        st.sidebar.markdown(f"""<p style="font-size:25px; font-weight: 550; color: #DDE2E7">Filtre :</p> 
+                            </div> """, unsafe_allow_html=True)
+        asteroide = df1["Nom de l'astéroïde"].unique()
+        asteroide_with_blank = ["Choisissez un astéroïde :"] + list(asteroide)
+        selection = st.sidebar.selectbox(" ", asteroide_with_blank, key='selectbox_key')
+        if selection != "Choisissez un astéroïde :" :
 
-        df_ast = get_data("""
-                        with cte_current_day as(
-                            select
-                                distinct id,
-                                nom 
-                            from asteroids1 a 
-                            where date_approche = CURRENT_DATE
-                        )
-                        select 
-                            d.nom,
-                            TO_CHAR(a.date_approche, 'YYYY-MM-DD') as date_approche,
-                            a.description,
-                            a.magnitude_absolue, 
-                            a.diametre_estime_min_m, 
-                            a.diametre_estime_max_m, 
-                            a.vitesse_relative_km_par_seconde,
-                            a."type" 
-                        from cte_current_day d
-                        join asteroids1 a ON d.id = a.id
-                        order by d.nom, a.date_approche
-                        ;
-                    """)
-# Information sur l'astéroïde sélectionné : 
-        df_filtered = df_ast[df_ast['nom'] == selection]
-        index = df_filtered[df_filtered['nom'] == selection].index[-1] # Prendre les données de l'année en cours
-        
-        col1, col2 = st.columns([0.26, 0.74])
-        with col1: 
-            st.markdown(f"""
-            <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #050508; text-align:center;">
-                <br>
-                <h2 style="font-size:25px;"> {selection} </h2>
-                <h1 style="font-size:17px; font-weight: normal;">{df_filtered.loc[index, 'description']}</h1>
-                <h1 style="font-size:15px; font-weight: normal;"> Magnitude absolue : {df_filtered.loc[index, 'magnitude_absolue']}</h1>
-                <h1 style="font-size:15px; font-weight: normal;"> Diamètre estimé : Min {round(df_filtered.loc[index, 'diametre_estime_min_m'],2)}, Max {round(df_filtered.loc[index, 'diametre_estime_max_m'],2)} m</h1>
-                <h1 style="font-size:15px; font-weight: normal;"> Vitesse relative en {current_year} : {round(df_filtered.loc[index, 'vitesse_relative_km_par_seconde'],2)} km/s </h1>
-                <h1 style="font-size:15px; font-weight: normal;"> Type : {df_filtered.loc[index, 'type']}</h1>
-                </div> """, unsafe_allow_html=True)
-        with col2:
-            df_filtered['date_approche'] = pd.to_datetime(df_filtered['date_approche'])
+            df_ast = get_data("""
+                            with cte_current_day as(
+                                select
+                                    distinct id,
+                                    nom 
+                                from asteroids1 a 
+                                where date_approche = CURRENT_DATE
+                            )
+                            select 
+                                d.nom,
+                                TO_CHAR(a.date_approche, 'YYYY-MM-DD') as date_approche,
+                                a.description,
+                                a.magnitude_absolue, 
+                                a.diametre_estime_min_m, 
+                                a.diametre_estime_max_m, 
+                                a.vitesse_relative_km_par_seconde,
+                                a."type" 
+                            from cte_current_day d
+                            join asteroids1 a ON d.id = a.id
+                            order by d.nom, a.date_approche
+                            ;
+                        """)
+    # Information sur l'astéroïde sélectionné : 
+            df_filtered = df_ast[df_ast['nom'] == selection]
+            index = df_filtered[df_filtered['nom'] == selection].index[-1] # Prendre les données de l'année en cours
+            
+            col1, col2 = st.columns([0.26, 0.74])
+            with col1: 
+                st.markdown(
+                    """
+                    <style>
+                        .reduce-space {
+                            margin-bottom: 0px;
+                            padding-bottom: 0px;
+                            line-height: 1;
+                        }
+                    </style>
+                    """,
+                    unsafe_allow_html=True
+                )
+                st.markdown(f"""
+                <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #050508; text-align:center;">
+                    <br>
+                    <h2 style="font-size:25px;"> {selection} </h2>
+                    <h1 style="font-size:17px; font-weight: normal;">{df_filtered.loc[index, 'description']}</h1>
+                    <h1 style="font-size:15px; font-weight: normal;"> Magnitude absolue : {df_filtered.loc[index, 'magnitude_absolue']}</h1>
+                    <h1 class="reduce-space" style="font-size:15px; font-weight: normal;"> Diamètre estimé : </h1>
+                    <p class="reduce-space" style="font-size:15px; font-weight: normal;"> Min {round(df_filtered.loc[index, 'diametre_estime_min_m'],2)} m, Max {round(df_filtered.loc[index, 'diametre_estime_max_m'],2)} m </p>
+                    <h1 style="font-size:15px; font-weight: normal;"> Vitesse relative en {current_year} : {round(df_filtered.loc[index, 'vitesse_relative_km_par_seconde'],2)} km/s </h1>
+                    <h1 style="font-size:15px; font-weight: normal;"> Type : {df_filtered.loc[index, 'type']}</h1>
+                    </div> """, unsafe_allow_html=True)
+            with col2:
+                df_filtered['date_approche'] = pd.to_datetime(df_filtered['date_approche'])
 
-            fig = px.line(df_filtered, 
-                            x='date_approche', 
-                            y='vitesse_relative_km_par_seconde', 
-                            title=f"Dates lorsque l'astéroïde {selection} passe près de la Terre ainsi que sa vitesse relative", labels={"date_approche": "Dates d'approche", "vitesse_relative_km_par_seconde":"Vitesse relative km/s"})
-            # Option 2 : Afficher toutes les dates disponibles
-            fig.update_xaxes(tickformat="%Y-%m-%d", tickvals=df_filtered['date_approche'], tickangle=-45)
-            # Affichage du graphique dans Streamlit
-            fig.update_layout(
-            plot_bgcolor="#050508", 
-            paper_bgcolor="#050508",
-            font_color="#DDE2E7",  # Texte 
-            title_x= 0.15)
-            st.plotly_chart(fig, use_container_width=True)
+                fig = px.line(df_filtered, 
+                                x='date_approche', 
+                                y='vitesse_relative_km_par_seconde', 
+                                title=f"Dates lorsque l'astéroïde {selection} passe près de la Terre ainsi que sa vitesse relative", labels={"date_approche": "Dates d'approche", "vitesse_relative_km_par_seconde":"Vitesse relative km/s"})
+                # Option 2 : Afficher toutes les dates disponibles
+                fig.update_xaxes(tickformat="%Y-%m-%d", tickvals=df_filtered['date_approche'], tickangle=-45)
+                # Affichage du graphique dans Streamlit
+                fig.update_layout(
+                plot_bgcolor="#050508", 
+                paper_bgcolor="#050508",
+                font_color="#DDE2E7",  # Texte 
+                title_x= 0.15)
+                st.plotly_chart(fig, use_container_width=True)
 

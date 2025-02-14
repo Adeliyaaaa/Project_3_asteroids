@@ -11,6 +11,38 @@ model = genai.GenerativeModel('gemini-1.5-flash')
 
 st.session_state["page"] = "Astro Bot"
 
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] {
+            background-color: #050508; /* Black */
+            color: white;
+            padding: 20px;
+            border-right: 2px solid #13151D; /* Bordure Rich black*/
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        /* Modifier la couleur du texte dans la sidebar */
+        [data-testid="stSidebar"] * {
+            color: #DDE2E7; /* Platinum */
+        }
+
+        [data-testid="stSidebarNav"] a[aria-current="page"] {
+            background-color: #050508; /* Black */
+            border-radius: 10px; /* Arrondir les bords */
+            padding: 5px 10px; /* Ajoute un peu d'espace */
+        }
+        .custom-text {
+        color: white;
+        font-size: 15px;
+        text-align: center;
+        }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+    )
+
 #Couleur de fond : 
 page_bg_img2 = """
 <style>

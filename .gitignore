@@ -4,3 +4,4 @@ postgresql_railway.txt
 Docker/repo_to_clone/.env
 .streamlit/
 .streamlit/secrets.toml
+/__pycache__

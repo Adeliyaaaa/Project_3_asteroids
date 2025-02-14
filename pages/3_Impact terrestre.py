@@ -59,26 +59,20 @@ page_bg_img1 = """
 # Appliquer le CSS avec st.markdown
 st.markdown(page_bg_img1, unsafe_allow_html=True)
 
-    query = """
-    SELECT 
-        nom, 
-        lieu_impact,
-        latitude,  
-        longitude, 
-        description,
-        type,
-        TO_CHAR(date_entree_athmospherique, 'DD-MM-YYYY') AS date_entree_athmospherique
-        masse_estimee_kg,
-        vitesse_relative_km_par_seconde 
-    FROM asteroids1
-    WHERE lieu_impact IS NOT NULL AND latitude IS NOT NULL AND longitude IS NOT NULL;
-    """
-    df = pd.read_sql(query, conn)
-    conn.close()
-    return df
-
-df = get_data()
-
+df = get_data = """
+SELECT 
+    nom, 
+    lieu_impact,
+    latitude,  
+    longitude, 
+    description,
+    type,
+    TO_CHAR(date_entree_athmospherique, 'DD-MM-YYYY') AS date_entree_athmospherique
+    masse_estimee_kg,
+    vitesse_relative_km_par_seconde 
+FROM asteroids1
+WHERE lieu_impact IS NOT NULL AND latitude IS NOT NULL AND longitude IS NOT NULL;
+"""
 # Garde seulement les lieux d'impact uniques
 df_unique_impact = df.drop_duplicates(subset='lieu_impact').reset_index(drop=True)
 
