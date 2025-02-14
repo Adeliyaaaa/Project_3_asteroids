@@ -331,7 +331,7 @@ with col2:
     JOIN   
         (SELECT   
             EXTRACT(YEAR FROM date_approche) AS annee,  
-            COUNT(*) AS nombre_impacts  
+            COUNT (DISTINCT nom) AS nombre_impacts  
         FROM   
             asteroids1  
         WHERE   
