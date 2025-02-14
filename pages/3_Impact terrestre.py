@@ -93,7 +93,7 @@ with col1:
     m.add_basemap(basemap)
 
     # Ajouter des marqueurs classiques pour chaque lieu d'impact
-    for _, row in df_unique_impact.iterrows():
+    for _, row in df.iterrows():
         popup_content = f"""
         <div style="text-align: center;">
             <h4 style="color: darkred;">🌠 {row["nom"]}</h4>
