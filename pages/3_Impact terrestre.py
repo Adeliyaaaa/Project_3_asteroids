@@ -13,11 +13,43 @@ st.set_page_config(layout="wide")
 #st.title("Entrée atmosphérique et impacts terrestres")
 st.session_state["page"] = "Impact terrestre"
 
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] {
+            background-color: #050508; /* Black */
+            color: white;
+            padding: 20px;
+            border-right: 2px solid #13151D; /* Bordure Rich black*/
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        /* Modifier la couleur du texte dans la sidebar */
+        [data-testid="stSidebar"] * {
+            color: #DDE2E7; /* Platinum */
+        }
+
+        [data-testid="stSidebarNav"] a[aria-current="page"] {
+            background-color: #050508; /* Black */
+            border-radius: 10px; /* Arrondir les bords */
+            padding: 5px 10px; /* Ajoute un peu d'espace */
+        }
+        .custom-text {
+        color: white;
+        font-size: 15px;
+        text-align: center;
+        }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+    )
+
 # l'image de fond de la 1ère page:
 page_bg_img1 = """
 <style>
 .stApp {
-    background-color: #000000;
+    background-color: #050508;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -27,16 +59,6 @@ page_bg_img1 = """
 # Appliquer le CSS avec st.markdown
 st.markdown(page_bg_img1, unsafe_allow_html=True)
 
-#Connexion à la base de données PostgreSQL
-@st.cache_data
-def get_data():
-    conn = psycopg2.connect(
-        dbname="railway",
-        user="postgres",
-        password="IcXcqpYtGyKDJdhItyAlEvGolVtCZbnB",
-        host="autorack.proxy.rlwy.net",
-        port="46644"
-    )
     query = """
     SELECT 
         nom, 
@@ -45,7 +67,7 @@ def get_data():
         longitude, 
         description,
         type,
-        date_entree_athmospherique,
+        TO_CHAR(date_entree_athmospherique, 'DD-MM-YYYY') AS date_entree_athmospherique
         masse_estimee_kg,
         vitesse_relative_km_par_seconde 
     FROM asteroids1
