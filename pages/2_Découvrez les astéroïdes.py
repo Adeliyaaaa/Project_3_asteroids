@@ -268,8 +268,8 @@ with col3:
     """, unsafe_allow_html=True)
     st.write("")
 
-    # Nombre total d'impacts terrestres:  
-    impacts = filtered_df['lieu_impact'].notna().sum()
+    # Nombre total d'impacts terrestres:
+    impacts = filtered_df['nom'][filtered_df['lieu_impact'].notna()].nunique() 
     # Afficher le résultat
     st.markdown(f"""
     <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 235px; height: 165px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
