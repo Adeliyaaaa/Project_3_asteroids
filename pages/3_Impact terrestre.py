@@ -5,99 +5,229 @@ import leafmap.foliumap as leafmap
 from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster
 from database import get_data
+from streamlit_folium import folium_static
 
 # Configuration de la page Streamlit
 st.set_page_config(layout="wide")
 
+st.markdown(f"""
+    <div style="background-color:rgba(5, 5, 8, 0.4); padding:5px; border-radius:8px; text-align:center;">
+    <h2 style="font-size:45px; font-weight: bold;"> Les impacteurs </h2>
+    </div> """, unsafe_allow_html=True)
+
+st.session_state["page"] = "Impact terrestre"
+
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] {
+            background-color: #050508; /* Black */
+            color: white;
+            padding: 20px;
+            border-right: 2px solid #13151D; /* Bordure Rich black*/
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        /* Modifier la couleur du texte dans la sidebar */
+        [data-testid="stSidebar"] * {
+            color: #DDE2E7; /* Platinum */
+        }
+
+        [data-testid="stSidebarNav"] a[aria-current="page"] {
+            background-color: #050508; /* Black */
+            border-radius: 10px; /* Arrondir les bords */
+            padding: 5px 10px; /* Ajoute un peu d'espace */
+        }
+        .custom-text {
+        color: white;
+        font-size: 15px;
+        text-align: center;
+        }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+    )
+
+page_bg_img1 = """
+<style>
+.stApp {
+    background-image: url("https://images.unsplash.com/photo-1544656376-ffe19d4b7353?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+</style>
+"""
+# Appliquer le CSS avec st.markdown
+st.markdown(page_bg_img1, unsafe_allow_html=True)
+
+
 # Charger les données depuis la base de données
 df = get_data("""
-WITH cte_latest AS (
-    SELECT
-        nom,
-        id,
-        MAX(date_approche) AS derniere_date_approche
-    FROM asteroids1
-    GROUP BY nom, id
-)
-SELECT 
-    a.nom,  
-    a.date_entree_athmospherique,
-    a.lieu_impact, 
-    a.latitude, 
-    a.longitude
-FROM asteroids1 a 
-JOIN cte_latest l ON l.id = a.id AND a.date_approche = l.derniere_date_approche
-WHERE lieu_impact NOTNULL AND latitude NOTNULL;
+            WITH cte_latest AS (
+                SELECT
+                    nom,
+                    id,
+                    MAX(date_approche) AS derniere_date_approche
+                FROM asteroids1
+                GROUP BY nom, id
+            )
+            SELECT 
+                a.nom,
+                a.description, 
+                TO_CHAR(a.date_entree_athmospherique, 'DD-MM-YYYY') as date_entree_athmospherique, 
+                a.lieu_impact,
+                a.magnitude_absolue, 
+                a.diametre_estime_min_m,
+                a.diametre_estime_max_m,
+                a.potentiellement_dangeureux,
+                a.sentry_surveillance_collisions,
+                a.vitesse_relative_km_par_seconde,
+                a.vitesse_relative_km_par_heure,
+                a."type",
+                a.latitude, 
+                a.longitude
+            FROM asteroids1 a 
+            JOIN cte_latest l ON l.id = a.id AND a.date_approche = l.derniere_date_approche
+            WHERE lieu_impact NOTNULL AND latitude NOTNULL;
 """)
 
-# Afficher les premières lignes pour vérification
-st.write(df)
-# Compter le nombre d'astéroïdes par lieu
-asteroids_count = df.groupby(['latitude', 'longitude']).size().reset_index(name='count')
+df_nb_asteroids = get_data("""
+                        select 
+                            DISTINCT(lieu_impact),
+                            COUNT(distinct nom) as nb_asteroids, 
+                            latitude, 
+                            longitude 
+                        from asteroids1 a 
+                        where lieu_impact notnull and longitude NOTNULL
+                        group by 
+                            lieu_impact, 
+                            latitude, 
+                            longitude ;
+                           """)
 
-# Créer un dictionnaire où chaque clé est un lieu d'impact et la valeur est une liste d'astéroïdes
-impact_dict = {}
-for idx, row in df.dropna(subset=['lieu_impact']).iterrows():
-    impact = row['lieu_impact']
-    name = row['nom']
+# Filtres de la page : 
+if "page" not in st.session_state:
+    st.session_state["page"] = "Impact terrestre"  
+
+if st.session_state["page"] == "Impact terrestre":
+
+    st.sidebar.markdown(f"""<p style="font-size:25px; font-weight: 550; color: #DDE2E7">Filtre :</p> 
+                        </div> """, unsafe_allow_html=True)
+    # lieu = df["lieu_impact"].unique()
+    # lieu_with_blank = ["Choisissez un lieu :"] + list(lieu)
+    # selection = st.sidebar.selectbox(" ", lieu_with_blank, key='selectbox_key')
+    # if selection != "Choisissez un lieu :" :
+    #     indexes = df[df["lieu_impact"] == selection].index
+    #     for index in indexes: 
+    #         asteroid = df.loc[index, 'nom']
+
+    # Choisir le fond de carte
+    options = list(leafmap.basemaps.keys())
+    index = options.index("HYBRID")
+    with st.sidebar:
+        basemap = st.selectbox("Fonds de carte :", options, index, key="selectbox_basemap")
+
+# Créer la carte avec le fond choisi
+m = leafmap.Map(locate_control=True, latlon_control=True, draw_export=True, minimap_control=True)
+m.add_basemap(basemap)
+
+# Fonction pour ajuster la taille en fonction du nombre d'astéroïdes
+def get_marker_size(nb_asteroids, min_size=45, max_size=100, scale_factor=4):
+    return min(max_size, max(min_size, nb_asteroids * scale_factor))
+
+for index, row in df_nb_asteroids.iterrows():
+    nb_asteroids = df_nb_asteroids.loc[index, 'nb_asteroids']
+    size = get_marker_size(nb_asteroids)  # Calcul dynamique de la taille
+
     
-    if impact in impact_dict:
-        impact_dict[impact].append(name)
-    else:
-        impact_dict[impact] = [name]
-
-# Créer un DataFrame avec comme colonnes les lieux d'impact et comme valeurs les noms des astéroïdes
-df_n = pd.DataFrame(dict([(key, pd.Series(value)) for key, value in impact_dict.items()]))
-
-# Afficher le DataFrame résultant
-st.write(df_n)
-
-# Choisir le fond de carte
-options = list(leafmap.basemaps.keys())
-index = options.index("SATELLITE")
-with st.sidebar:
-    basemap = st.selectbox("Sélectionnez un fond de carte :", options, index, key="selectbox_basemap")
-# Créer la carte avec le fond choisi
-# Créer la carte avec le fond choisi
-# Créer la carte avec le fond choisi
-df = df.merge(asteroids_count[['latitude', 'longitude', 'count']], on=['latitude', 'longitude'], how='left')
-col1, col2 = st.columns([4, 1])
-with col1:
-    # Créer la carte avec le fond choisi
-    m = leafmap.Map(locate_control=True, latlon_control=True, draw_export=True, minimap_control=True)
-    m.add_basemap(basemap)
-
-    # Ajouter les marqueurs pour chaque astéroïde dans le DataFrame df
-for idx, row in df.iterrows():
-    if pd.notnull(row['latitude']) and pd.notnull(row['longitude']):
-        # Récupérer le lieu d'impact à partir du DataFrame df
-        lieu_impact = row['lieu_impact']
-        
-        # Créer un tooltip avec le nom du lieu d'impact
-        tooltip_text = lieu_impact
-
-        # Calculer un rayon proportionnel au nombre d'astéroïdes
-        radius = row['count'] * 2  # Le rayon augmente avec le nombre d'astéroïdes
-        radius = max(radius, 10)  # Définir un rayon minimum pour les petits nombres (ici 10)
-
-        # Ajouter un cercle avec un popup et un tooltip
-        folium.CircleMarker(
-            location=[row['latitude'], row['longitude']],
-            radius=radius,  # Rayon proportionnel
-            color='orange',
-            fill=True,
-            fill_color='orange',
-            fill_opacity=0.7,  # Opacité uniforme pour le cercle
-            tooltip=tooltip_text  # Afficher le nom du lieu d'impact au survol
-        ).add_to(m)
-
-        # Ajouter le nombre d'astéroïdes à l'intérieur du cercle avec une opacité ajustée
-        folium.Marker(
-            location=[row['latitude'], row['longitude']],
-            icon=folium.DivIcon(
-                html=f'<div style="font-size: 10pt; color: rgba(255, 255, 255, 0.7); text-align: center; font-weight: bold; width: {radius * 2}px; height: {radius * 2}px; position: absolute; left: -{radius -5}px; top: -{radius -35}px; opacity: 0.7;">{int(row["count"])}</div>'
-            )
-        ).add_to(m)
-
+    folium.Marker(
+        location=row[['latitude', 'longitude']],
+        popup= (f"""
+            <div style="font-size:14px; color: #050508; text-align: center;">
+                <strong>{row['lieu_impact']}</strong><br>
+            """),       
+        icon=folium.DivIcon(
+        html=f"""<div style="font-size:15px; color: #DDE2E7; 
+                background: radial-gradient(rgba(19, 21, 29, 0.9) 30%, rgba(19, 21, 29, 0.5) 60%, rgba(19, 21, 29, 0) 100%);
+                border-radius: 50%;  
+                width: {size}px; height:{size}px; text-align: center; 
+                line-height: {size}px; font-weight: bold;">{nb_asteroids}</div>"""
+                )
+            ).add_to(m)
 # Affichage de la carte dans Streamlit
-map_data = st_folium(m, width=1100, height=530)
+map_data = st_folium(m, width=1250, height=400)
+
+if map_data and "last_object_clicked" in map_data and map_data["last_object_clicked"]:
+    lat, lon = map_data["last_object_clicked"]["lat"], map_data["last_object_clicked"]["lng"]
+
+    # Appliquer une tolérance pour éviter les petites variations dans les coordonnées
+    tolerance = 0.0001  # Ajustez la tolérance selon vos besoins
+    selected_row = df[
+        (df["latitude"].between(lat - tolerance, lat + tolerance)) &
+        (df["longitude"].between(lon - tolerance, lon + tolerance))
+    ]
+    
+
+    if not selected_row.empty:
+        selected_row_indexes = selected_row.index # Indexes des astéroïdes sélectionnés
+
+        for index in selected_row_indexes: 
+            nom = selected_row.loc[index, "nom"]  # nom sélectionné
+            dict = selected_row.to_dict('index')
+        
+            col1, col2, col3 = st.columns([0.2, 0.4, 0.4])
+
+            button_css = """
+                <style>
+                .stButton > button {
+                    background-color: #050508;
+                    color: DDE2E7 !important;
+                    border: 1px solid #DDE2E7;
+                    border-radius: 15px;
+                    font-size: 22px;
+                    font-weight: bold; /* Ajoute la police en gras */
+                    padding: 10px 20px;
+                    height:100px;
+                    width: 200px;
+                    transition: background-color 0.3s ease;
+                }
+                .stButton > button:hover {
+                    background-color: #13151D;
+                    border: 3px solid #DDE2E7;
+                    font-size: 24px;
+                    color: DDE2E7 !important;
+                }
+                .stButton > button:active {
+                background-color: #807E75; /* Couleur lorsque le bouton est cliqué */
+                border: 5px solid #DDE2E7 !important;
+                font-size: 26px !important;
+                }
+                </style>
+            """
+
+            # Injecter le CSS dans l'application
+            st.markdown(button_css, unsafe_allow_html=True)
+
+            with col1: 
+                if st.button(nom) : 
+                    with col2: 
+                        st.markdown(f"""
+                    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center; height:250px">
+                        <h2 style="font-size:25px;"> {selected_row.loc[index, 'nom']} </h2>
+                        <h1 style="font-size:17px; font-weight: normal;"> est entré dans l'atmosphère terrestre le {selected_row.loc[index, 'date_entree_athmospherique']}. </h1>
+                        <h1 style="font-size:16px; font-weight: normal;">Potentiellement dangereux : {selected_row.loc[index, 'potentiellement_dangeureux']}</h1>
+                        <h1 style="font-size:16px; font-weight: normal;">Surveillance collision : {selected_row.loc[index, 'sentry_surveillance_collisions']}</h1>
+                        </div> """, unsafe_allow_html=True)
+                    with col3:
+                        st.markdown(f"""
+                    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center; height:250px">
+                        <h1 style="font-size:16px; font-weight: normal;"> Magnitude absolue : {selected_row.loc[index, 'magnitude_absolue']}</h1>
+                        <h1 class="reduce-space" style="font-size:16px; font-weight: normal;"> Diamètre estimé : 
+                            Min {round(selected_row.loc[index, 'diametre_estime_min_m'],2)} m, Max {round(selected_row.loc[index, 'diametre_estime_max_m'],2)} m </h1>
+                        <h1 style="font-size:16px; font-weight: normal;"> Vitesse relative : {round(selected_row.loc[index, 'vitesse_relative_km_par_seconde'],2)} km/s </h1>
+                        <h1 style="font-size:16px; font-weight: normal;"> Type : {selected_row.loc[index, 'type']}</h1>
+                        </div> """, unsafe_allow_html=True)
+
+
