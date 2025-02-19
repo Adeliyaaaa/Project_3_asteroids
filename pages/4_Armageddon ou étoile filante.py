@@ -247,9 +247,12 @@ def similar_asteroids(
     fig = px.line(df_filtered, 
                     x='date_approche', 
                     y='vitesse_relative_km_par_seconde', 
-                    title=f"Dates lorsque l'astéroïde {df_similar_asteroids.loc[0, 'nom_astéroïde']} passe près de la Terre ainsi que sa vitesse relative", labels={"date_approche": "Dates d'approche", "vitesse_relative_km_par_seconde":"Vitesse relative km/s"})
+                    title=f"Dates lorsque l'astéroïde {df_similar_asteroids.loc[0, 'nom_astéroïde']} passe près de la Terre ainsi que sa vitesse relative", 
+                    labels={"date_approche": "Dates d'approche", "vitesse_relative_km_par_seconde":"Vitesse relative km/s"},
+                    markers=True)
     # Option 2 : Afficher toutes les dates disponibles
     fig.update_xaxes(tickformat="%Y-%m-%d", tickvals=df_filtered['date_approche'], tickangle=-45)
+    fig.update_traces(line=dict(color='#0077B6', width=2))
     # Affichage du graphique dans Streamlit
     fig.update_layout(
     plot_bgcolor="#050508", 
