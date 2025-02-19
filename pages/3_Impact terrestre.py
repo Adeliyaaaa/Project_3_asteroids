@@ -2,7 +2,8 @@ import pandas as pd
 import streamlit as st
 import folium
 import leafmap.foliumap as leafmap
-from streamlit_folium import folium_static, st_folium
+from streamlit_folium import st_folium
+from folium.plugins import MarkerCluster
 from database import get_data
 
 # Configuration de la page Streamlit
@@ -10,91 +11,93 @@ st.set_page_config(layout="wide")
 
 # Charger les données depuis la base de données
 df = get_data("""
+WITH cte_latest AS (
+    SELECT
+        nom,
+        id,
+        MAX(date_approche) AS derniere_date_approche
+    FROM asteroids1
+    GROUP BY nom, id
+)
 SELECT 
-    nom, 
-    lieu_impact,
-    latitude,  
-    longitude, 
-    description,
-    type,
-    TO_CHAR(date_entree_athmospherique, 'DD-MM-YYYY') AS date_entree_athmospherique,
-    masse_estimee_kg,
-    vitesse_relative_km_par_seconde 
-FROM asteroids1
-WHERE lieu_impact IS NOT NULL AND latitude IS NOT NULL AND longitude IS NOT NULL
-GROUP BY lieu_impact, latitude, longitude, nom, description, type, date_entree_athmospherique, masse_estimee_kg, vitesse_relative_km_par_seconde;
+    a.nom,  
+    a.date_entree_athmospherique,
+    a.lieu_impact, 
+    a.latitude, 
+    a.longitude
+FROM asteroids1 a 
+JOIN cte_latest l ON l.id = a.id AND a.date_approche = l.derniere_date_approche
+WHERE lieu_impact NOTNULL AND latitude NOTNULL;
 """)
 
-# Créer un DataFrame final_df avec 10 astéroïdes ayant des lieux d'impact différents
-final_df = df.drop_duplicates(subset="lieu_impact").head(10)  # Sélectionner 10 lieux d'impact uniques
+# Afficher les premières lignes pour vérification
+st.write(df)
+# Compter le nombre d'astéroïdes par lieu
+asteroids_count = df.groupby(['latitude', 'longitude']).size().reset_index(name='count')
 
-# --- Titre de la page et de la carte ---
-st.title("Carte des impacts terrestres des astéroïdes")
+# Créer un dictionnaire où chaque clé est un lieu d'impact et la valeur est une liste d'astéroïdes
+impact_dict = {}
+for idx, row in df.dropna(subset=['lieu_impact']).iterrows():
+    impact = row['lieu_impact']
+    name = row['nom']
+    
+    if impact in impact_dict:
+        impact_dict[impact].append(name)
+    else:
+        impact_dict[impact] = [name]
 
-# --- Interface pour choisir le fond de carte ---
-col1, col2 = st.columns([4, 1])
+# Créer un DataFrame avec comme colonnes les lieux d'impact et comme valeurs les noms des astéroïdes
+df_n = pd.DataFrame(dict([(key, pd.Series(value)) for key, value in impact_dict.items()]))
+
+# Afficher le DataFrame résultant
+st.write(df_n)
+
+# Choisir le fond de carte
 options = list(leafmap.basemaps.keys())
 index = options.index("SATELLITE")
 with st.sidebar:
     basemap = st.selectbox("Sélectionnez un fond de carte :", options, index, key="selectbox_basemap")
-
+# Créer la carte avec le fond choisi
+# Créer la carte avec le fond choisi
+# Créer la carte avec le fond choisi
+df = df.merge(asteroids_count[['latitude', 'longitude', 'count']], on=['latitude', 'longitude'], how='left')
+col1, col2 = st.columns([4, 1])
 with col1:
-    m = leafmap.Map(
-        locate_control=True, latlon_control=True, draw_export=True, minimap_control=True
-    )
+    # Créer la carte avec le fond choisi
+    m = leafmap.Map(locate_control=True, latlon_control=True, draw_export=True, minimap_control=True)
     m.add_basemap(basemap)
 
-    # Ajouter des marqueurs classiques pour chaque lieu d'impact dans final_df
-    for _, row in final_df.iterrows():
-        popup_content = f"""
-        <div style="text-align: center;">
-            <h4 style="color: darkred;">🌠 {row["nom"]}</h4>
-            <b>Lieu :</b> {row["lieu_impact"]}<br>
-        </div>
-        """
+    # Ajouter les marqueurs pour chaque astéroïde dans le DataFrame df
+for idx, row in df.iterrows():
+    if pd.notnull(row['latitude']) and pd.notnull(row['longitude']):
+        # Récupérer le lieu d'impact à partir du DataFrame df
+        lieu_impact = row['lieu_impact']
+        
+        # Créer un tooltip avec le nom du lieu d'impact
+        tooltip_text = lieu_impact
 
-        folium.Marker(
-            location=[row["latitude"], row["longitude"]],
-            popup=folium.Popup(popup_content, max_width=300),
-            icon=folium.Icon()  # Utilise l'icône par défaut de Folium
+        # Calculer un rayon proportionnel au nombre d'astéroïdes
+        radius = row['count'] * 2  # Le rayon augmente avec le nombre d'astéroïdes
+        radius = max(radius, 10)  # Définir un rayon minimum pour les petits nombres (ici 10)
+
+        # Ajouter un cercle avec un popup et un tooltip
+        folium.CircleMarker(
+            location=[row['latitude'], row['longitude']],
+            radius=radius,  # Rayon proportionnel
+            color='orange',
+            fill=True,
+            fill_color='orange',
+            fill_opacity=0.7,  # Opacité uniforme pour le cercle
+            tooltip=tooltip_text  # Afficher le nom du lieu d'impact au survol
         ).add_to(m)
 
-    # Afficher la carte interactive dans Streamlit
-    map_data = st_folium(m, width=1100, height=530)
+        # Ajouter le nombre d'astéroïdes à l'intérieur du cercle avec une opacité ajustée
+        folium.Marker(
+            location=[row['latitude'], row['longitude']],
+            icon=folium.DivIcon(
+                html=f'<div style="font-size: 10pt; color: rgba(255, 255, 255, 0.7); text-align: center; font-weight: bold; width: {radius * 2}px; height: {radius * 2}px; position: absolute; left: -{radius -5}px; top: -{radius -35}px; opacity: 0.7;">{int(row["count"])}</div>'
+            )
+        ).add_to(m)
 
-    # Vérifier si un marqueur a été cliqué
-    if map_data and "last_object_clicked" in map_data and map_data["last_object_clicked"]:
-        lat, lon = map_data["last_object_clicked"]["lat"], map_data["last_object_clicked"]["lng"]
-        
-        # Appliquer une tolérance pour éviter les petites variations dans les coordonnées
-        tolerance = 0.0001  # Ajustez la tolérance selon vos besoins
-        selected_row = final_df[
-            (final_df["latitude"].between(lat - tolerance, lat + tolerance)) &
-            (final_df["longitude"].between(lon - tolerance, lon + tolerance))
-        ]
-        
-        if not selected_row.empty:
-            st.session_state["selection"] = selected_row.iloc[0]["nom"]  # Mise à jour du nom sélectionné
-
-# --- Affichage des détails si un astéroïde est sélectionné ---
-with col2:
-    if "selection" in st.session_state and st.session_state["selection"]:
-        # Filtrer le DataFrame final_df selon le nom sélectionné
-        selected_asteroid = final_df[final_df["nom"] == st.session_state["selection"]]
-        
-        # Vérification si l'astéroïde sélectionné n'est pas vide
-        if not selected_asteroid.empty:
-            asteroid_info = selected_asteroid.iloc[0]
-            st.markdown(f"""
-            <div style="background-color:#1e1e1e; padding:40px; border-radius:15px; border: 3px solid #333333; text-align:center; color:white; font-size:22px;">
-                <h2 style="font-size:30px; font-weight:bold; color:white; text-decoration: underline;">{asteroid_info['nom']}</h2>
-                <p><b style="font-size:26px;">Lieu :</b> {asteroid_info['lieu_impact']}</p>
-                <p><b style="font-size:26px;">Date :</b> {asteroid_info['date_entree_athmospherique']}</p>
-                <p><b style="font-size:26px;">Vitesse :</b> {asteroid_info['vitesse_relative_km_par_seconde']} km/s</p>
-                <p><b style="font-size:26px;">Type :</b> {asteroid_info['type'] if pd.notna(asteroid_info['type']) else "Non disponible"}</p>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.write("Aucune donnée trouvée pour cet astéroïde.")
-
-
+# Affichage de la carte dans Streamlit
+map_data = st_folium(m, width=1100, height=530)
