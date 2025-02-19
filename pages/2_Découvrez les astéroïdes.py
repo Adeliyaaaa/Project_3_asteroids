@@ -12,7 +12,7 @@ st.set_page_config(layout="wide")
 
 st.markdown(f"""
     <div style="background-color:rgba(5, 5, 8, 0.4); padding:5px; border-radius:8px; text-align:center;">
-    <h2 style="font-size:45px; font-weight: bold;"> Découvrez les astéroïdes💥 </h2>
+    <h2 style="font-size:45px; font-weight: bold;"> Découvrez les astéroïdes </h2>
     </div> """, unsafe_allow_html=True)
 
 st.session_state["page"] = "Découvrez les astéroïdes"
@@ -107,7 +107,7 @@ with col_1:
     total_asteroides = filtered_df.shape[0]  
     # Afficher le résultat
     st.markdown(f"""
-    <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
         <div>
             <h2 style="font-size:18px; color: #DDE2E7; margin: 0;"> Nombre d'astéroïdes </h2>
             <h1 style="font-size:20px; color: #EAE0D5; margin: 0;">{total_asteroides}</h1>
@@ -121,7 +121,7 @@ with col_2:
     total_collisions_surveillees = filtered_df['sentry_surveillance_collisions'].sum()
     # Afficher le résultat
     st.markdown(f"""
-    <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
         <div>
             <h2 style="font-size:18px; color: #DDE2E7; margin: 0;"> Nombre de collisions surveillées </h2>
             <h1 style="font-size:20px; color: #EAE0D5; margin: 0;">{total_collisions_surveillees}</h1>
@@ -136,7 +136,7 @@ with col_3:
     diametre_max = filtered_df['diametre_estime_max_m'].max()
     # Afficher le résultat
     st.markdown(f"""
-    <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
         <div>
             <h2 style="font-size:18px; color: #DDE2E7; margin: 0;"> Diamètre estimé (m) </h2>
             <h1 style="font-size:20px; color: #EAE0D5; margin: 0;"> Min: {diametre_min:.2f}</h1>
@@ -152,7 +152,7 @@ with col_4:
     vitesse_max = filtered_df['vitesse_relative_km_par_seconde'].max()
     # Afficher le résultat
     st.markdown(f"""
-    <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
         <div>
             <h2 style="font-size:18px; color: #DDE2E7; margin: 0;"> Vitesse relative (km/s) </h2>
             <h1 style="font-size:20px; color: #EAE0D5; margin: 0;"> Min: {vitesse_min:.2f}</h1>
@@ -168,7 +168,7 @@ with col_5:
     distance_moyenne = distance_moyenne/1000000
     # Afficher le résultat
     st.markdown(f"""
-    <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
         <div>
             <h2 style="font-size:18px; color: #DDE2E7; margin: 0;"> Distance moyenne<br>Terre-Astéroïdes (km) </h2>
             <h1 style="font-size:20px; color: #EAE0D5; margin: 0;">{distance_moyenne:.2f}M </h1>
@@ -176,6 +176,8 @@ with col_5:
     </div>
     """, unsafe_allow_html=True)
     st.write("")
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # Graphiques
 col1, col2, col3 = st.columns([0.42, 0.38, 0.2])
@@ -209,8 +211,8 @@ with col1:
     # Afficher sur Streamlit
     fig1.update_layout(
         height=355,
-        plot_bgcolor='#22333B', 
-        paper_bgcolor='#22333B',
+        plot_bgcolor='#050508', 
+        paper_bgcolor='#050508',
         title_x=0.15, 
         title_font=dict(size=18, color='#DDE2E7'),
         yaxis=dict(  
@@ -223,7 +225,7 @@ with col1:
         xaxis_title="Nombre d'astéroïdes",
         yaxis_title="Type d'astéroïde"
     )
-    fig1.update_traces(textangle=360, textfont=dict(size=14), marker_color='#C6AC8F')
+    fig1.update_traces(textangle=360, textfont=dict(size=14), marker_color='#0077B6')
     st.plotly_chart(fig1, use_container_width=True)
 
 # Astéroïdes au fil du temps
@@ -240,11 +242,11 @@ with col2:
               labels={'nombre_asteroides': 'Nombre d\'astéroïdes', 'année': 'Année'},  
               markers=True)
     # Afficher sur Streamlit
-    fig2.update_traces(line=dict(color='#C6AC8F', width=2))
+    fig2.update_traces(line=dict(color='#0077B6', width=2))
     fig2.update_layout(
         height=355,
-        plot_bgcolor="#22333B", 
-        paper_bgcolor="#22333B",
+        plot_bgcolor="#050508", 
+        paper_bgcolor="#050508",
         font_color="#DDE2E7",
         title_x=0.15,
         title_font=dict(size=18, color='#DDE2E7')
@@ -259,7 +261,7 @@ with col3:
     moyenne_asteroides_par_jour = asteroides_par_jour.mean()
     # Afficher le résultat
     st.markdown(f"""
-    <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 235px; height: 165px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 235px; height: 165px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
         <div>
             <h2 style="font-size:18px; color: #DDE2E7; margin: 0;"> Nombre moyen d'astéroïdes par jour </h2>
             <h1 style="font-size:20px; color: #EAE0D5; margin: 0;">{round(moyenne_asteroides_par_jour)}</h1>
@@ -272,7 +274,7 @@ with col3:
     impacts = filtered_df['nom'][filtered_df['lieu_impact'].notna()].nunique() 
     # Afficher le résultat
     st.markdown(f"""
-    <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 235px; height: 165px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 235px; height: 165px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
         <div>
             <h2 style="font-size:18px; color: #DDE2E7; margin: 0;"> Nombre d'impacts terrestres </h2>
             <h1 style="font-size:20px; color: #EAE0D5; margin: 0;">{impacts}</h1>
@@ -281,8 +283,9 @@ with col3:
     """, unsafe_allow_html=True)
     st.write("")
 
+st.markdown("<br>", unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns([0.3, 0.5, 0.3])
+col1, col2, col3 = st.columns([0.27, 0.48, 0.35])
 
 # Astéroïdes potentiellement dangeureux vs non dangereux
 with col1:
@@ -297,14 +300,14 @@ with col1:
                 names="Type d'astéroïde", 
                 values="Nombre", 
                 title="Proportion des astéroïdes",
-                color_discrete_sequence=["#C6AC8F", "#EAE0D5"],
+                color_discrete_sequence=["#0077B6", "#CAF0F8"],
                 hole=0.4)
 
     # Afficher sur Streamlit
     fig1.update_layout(  
         height=380,
-        plot_bgcolor='#22333B', 
-        paper_bgcolor='#22333B',
+        plot_bgcolor='#050508', 
+        paper_bgcolor='#050508',
         title_x=0.15, 
         title_font=dict(size=18, color='#DDE2E7'),  
         legend=dict(title='Type d\'astéroïde', font=dict(size=14), orientation="h") 
@@ -359,7 +362,7 @@ with col2:
     x=df_stats_ast['annee'],  
     y=df_stats_ast['nombre_impacts'],  
     name='Impacts terrestres',  
-    marker_color='#EAE0D5',
+    marker_color='#CAF0F8',
     text=df_stats_ast['nombre_impacts'],
     textposition='inside',
     textangle=360,
@@ -370,7 +373,7 @@ with col2:
     x=df_stats_ast['annee'],  
     y=df_stats_ast['entrees_atmosphere'],  
     name='Entrées dans l\'atmosphère',  
-    marker_color='#C6AC8F',
+    marker_color='#0077B6',
     text=df_stats_ast['entrees_atmosphere'],  
     textposition='inside',
     textangle=360,
@@ -379,8 +382,8 @@ with col2:
     # Afficher le graphique avec Streamlit  
     fig.update_layout(
     height=380,
-    plot_bgcolor='#22333B', 
-    paper_bgcolor='#22333B',  
+    plot_bgcolor='#050508', 
+    paper_bgcolor='#050508',  
     legend=dict(
         font=dict(size=14), 
         orientation="h",
@@ -396,44 +399,8 @@ with col2:
     ) 
     st.plotly_chart(fig, use_container_width=True)  
 
-# Information sur l'astéroïde sélectionné   
-with col3:
-    # Filtre astéroïde
-    asteroide = df['nom'].unique()
-    selected_asteroide = st.sidebar.multiselect("Choisissez un astéroïde :", asteroide)   
-    filtered_df_ast = df[df['nom'].isin(selected_asteroide)]
-
-    # Afficher les informations pour chaque astéroïde sélectionné  
-    if selected_asteroide and not filtered_df_ast.empty:  
-        latest_asteroid = filtered_df_ast.sort_values(by='date_approche', ascending=False).iloc[0]
-
-        st.markdown(f"""  
-            <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #22333B; height: 380px; overflow: hidden; text-align:center;">   
-                <h2 style="font-size:20px;"> {latest_asteroid['nom']} </h2>  
-                <h1 style="font-size:15px; font-weight: normal;">{latest_asteroid['description']}</h1>  
-                <h1 style="font-size:15px; font-weight: normal;"> Magnitude absolue: {latest_asteroid['magnitude_absolue']}</h1>  
-                <h1 style="font-size:15px; font-weight: normal;"> Diamètre estimé: Min {round(latest_asteroid['diametre_estime_min_m'], 2)} (m), Max {round(latest_asteroid['diametre_estime_max_m'], 2)} (m)</h1>  
-                <h1 style="font-size:15px; font-weight: normal;"> Vitesse relative en {latest_asteroid['date_approche'].year}: {round(latest_asteroid['vitesse_relative_km_par_seconde'], 2)} (km/s) </h1>  
-                <h1 style="font-size:15px; font-weight: normal;"> Type: {latest_asteroid['type']}</h1>  
-            </div> """, unsafe_allow_html=True)
-    else:
-        random_asteroid = df.sample(n=1)  # Sélectionner un astéroïde aléatoire 
-        row = random_asteroid.iloc[0] 
-        st.markdown(f"""  
-        <div style="background-color:#22333B; padding:5px; border-radius:5px; border: 1px solid #22333B; height: 380px; overflow: hidden; text-align:center;">    
-            <h2 style="font-size:20px;"> {row['nom']} </h2>  
-            <h1 style="font-size:15px; font-weight: normal;">{row['description']}</h1>  
-            <h1 style="font-size:15px; font-weight: normal;"> Magnitude absolue: {row['magnitude_absolue']}</h1>  
-            <h1 style="font-size:15px; font-weight: normal;"> Diamètre estimé: Min {round(row['diametre_estime_min_m'], 2)} (m), Max {round(row['diametre_estime_max_m'], 2)} (m)</h1>  
-            <h1 style="font-size:15px; font-weight: normal;"> Vitesse relative en {row['date_approche'].year}: {round(row['vitesse_relative_km_par_seconde'], 2)} (km/s) </h1>  
-            <h1 style="font-size:15px; font-weight: normal;"> Type: {row['type']}</h1>  
-        </div> """, unsafe_allow_html=True)
-         
-
-col1, col2 = st.columns([0.35, 0.65])
-
 # Répartition des tailles d'astéroïdes
-with col1:
+with col3:
     def classifie_taille(description):  
         description = description.lower()  
         if 'petite' in description or 'petit' in description or 'modeste' in description:  
@@ -447,30 +414,54 @@ with col1:
 
     filtered_df['taille'] = filtered_df['description'].apply(classifie_taille)
     taille_counts = filtered_df['taille'].value_counts().reset_index()
-    taille_counts.columns = ['taille', 'nombre']  
+    taille_counts.columns = ['taille', 'nombre']
 
     fig = px.bar(
         taille_counts,
         x='taille',
         y='nombre',
         title="Répartition des tailles d'astéroïdes",
-        text='nombre',
+        text='nombre'
     )
     # Afficher sur Streamlit
     fig.update_layout(
         height=370,
-        plot_bgcolor='#22333B', 
-        paper_bgcolor='#22333B',
+        plot_bgcolor='#050508', 
+        paper_bgcolor='#050508',
         title_x=0.15, 
         title_font=dict(size=18, color='#DDE2E7'),
         yaxis_type="log",  # Échelle logarithmique
         yaxis_title="Nombre d'astéroïdes",
         xaxis_title="Taille"
     )
-    fig.update_traces(textangle=360, textfont=dict(size=14), marker_color='#C6AC8F')
-    st.plotly_chart(fig, use_container_width=True) 
+    fig.update_traces(textangle=360, textfont=dict(size=14), marker_color='#0077B6')
+    st.plotly_chart(fig, use_container_width=True)
 
-# Information sur l'astéroïde sélectionné
+
+
+col1, col2 = st.columns([0.35, 0.65])
+
+# Information sur l'astéroïde sélectionné   
+with col1:
+    # Filtre astéroïde
+    asteroide = df['nom'].unique()
+    selected_asteroide = st.sidebar.multiselect("Choisissez un astéroïde :", asteroide)   
+    filtered_df_ast = df[df['nom'].isin(selected_asteroide)]
+
+    # Afficher les informations pour chaque astéroïde sélectionné  
+    if selected_asteroide and not filtered_df_ast.empty:  
+        latest_asteroid = filtered_df_ast.sort_values(by='date_approche', ascending=False).iloc[0]
+
+        st.markdown(f"""  
+            <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; height: 380px; overflow: hidden; text-align:center;">   
+                <h2 style="font-size:20px;"> {latest_asteroid['nom']} </h2>  
+                <h1 style="font-size:15px; font-weight: normal;">{latest_asteroid['description']}</h1>  
+                <h1 style="font-size:15px; font-weight: normal;"> Magnitude absolue: {latest_asteroid['magnitude_absolue']}</h1>  
+                <h1 style="font-size:15px; font-weight: normal;"> Diamètre estimé: Min {round(latest_asteroid['diametre_estime_min_m'], 2)} (m), Max {round(latest_asteroid['diametre_estime_max_m'], 2)} (m)</h1>  
+                <h1 style="font-size:15px; font-weight: normal;"> Vitesse relative en {latest_asteroid['date_approche'].year}: {round(latest_asteroid['vitesse_relative_km_par_seconde'], 2)} (km/s) </h1>  
+                <h1 style="font-size:15px; font-weight: normal;"> Type: {latest_asteroid['type']}</h1>  
+            </div> """, unsafe_allow_html=True)
+
 with col2:
     # Filtre astéroïde   
     filtered_df_ast = df[df['nom'].isin(selected_asteroide)]
@@ -486,39 +477,14 @@ with col2:
         
         fig.update_xaxes(tickformat="%Y-%m-%d", tickvals=filtered_df_ast['date_approche'], tickangle=-45)
         # Affichage du graphique dans Streamlit
-        fig.update_traces(line=dict(color='#C6AC8F', width=2))
+        fig.update_traces(line=dict(color='#0077B6', width=2))
         fig.update_layout(
         height=370,
-        plot_bgcolor="#22333B", 
-        paper_bgcolor="#22333B",
+        plot_bgcolor="#050508", 
+        paper_bgcolor="#050508",
         font_color="#DDE2E7", 
         title_x= 0.15,
         title_font=dict(size=18, color='#DDE2E7'))
         st.plotly_chart(fig, use_container_width=True)
     
-    else:
-        random_asteroid_choisi = random_asteroid
-        row1 = random_asteroid_choisi.iloc[0] 
-        
-        # Filtrer les données pour l'astéroïde choisi  
-        filtered_df_random = df[df['nom'] == row1['nom']]  
-        filtered_df_random['date_approche'] = pd.to_datetime(filtered_df_random['date_approche'])
-
-        fig = px.line(filtered_df_random, 
-                  x='date_approche', 
-                  y='vitesse_relative_km_par_seconde',
-                  title=f"Les dates quand l'astéroïde {row1['nom']} passe près de la Terre et sa vitesse", 
-                  labels={"date_approche": "Dates d'approche", "vitesse_relative_km_par_seconde":"Vitesse relative (km/s)"},
-                  markers=True)
-        
-        fig.update_xaxes(tickformat="%Y-%m-%d", tickvals=filtered_df_random['date_approche'], tickangle=-45)
-        # Affichage du graphique dans Streamlit
-        fig.update_traces(line=dict(color='#C6AC8F', width=2))
-        fig.update_layout(
-        height=370,
-        plot_bgcolor="#22333B", 
-        paper_bgcolor="#22333B",
-        font_color="#DDE2E7", 
-        title_x= 0.15,
-        title_font=dict(size=18, color='#DDE2E7'))
-        st.plotly_chart(fig, use_container_width=True)
+    
