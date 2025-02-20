@@ -54,7 +54,7 @@ st.markdown(
 page_bg_img2 = """
 <style>
 .stApp {
-    background-image: url("https://wallpaperaccess.com/full/138014.jpg");
+    background-image: url("https://4kwallpapers.com/images/wallpapers/stars-galaxy-3840x2160-10307.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
