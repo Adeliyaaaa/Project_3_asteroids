@@ -437,25 +437,27 @@ with col3:
     fig.update_traces(textangle=360, textfont=dict(size=14), marker_color='#0077B6')
     st.plotly_chart(fig, use_container_width=True)
 
+st.markdown("<br>", unsafe_allow_html=True)
 
-
-col1, col2 = st.columns([0.35, 0.65])
+col1, col2 = st.columns([0.38, 0.62])
 
 # Information sur l'astéroïde sélectionné   
 with col1:
     # Filtre astéroïde
     asteroide = df['nom'].unique()
-    selected_asteroide = st.sidebar.multiselect("Choisissez un astéroïde :", asteroide)   
-    filtered_df_ast = df[df['nom'].isin(selected_asteroide)]
+    selected_asteroide = st.sidebar.selectbox("Choisissez un astéroïde :", asteroide)   
+    filtered_df_ast = df[df['nom'] == selected_asteroide]
 
     # Afficher les informations pour chaque astéroïde sélectionné  
     if selected_asteroide and not filtered_df_ast.empty:  
         latest_asteroid = filtered_df_ast.sort_values(by='date_approche', ascending=False).iloc[0]
 
         st.markdown(f"""  
-            <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; height: 380px; overflow: hidden; text-align:center;">   
+            <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; height: 480px; overflow: hidden; text-align:center;">   
                 <h2 style="font-size:20px;"> {latest_asteroid['nom']} </h2>  
-                <h1 style="font-size:15px; font-weight: normal;">{latest_asteroid['description']}</h1>  
+                <h1 style="font-size:15px; font-weight: normal;">{latest_asteroid['description']}</h1> 
+                <h1 style="font-size:15px; font-weight: normal;">Potentiellement dangereux : {latest_asteroid['potentiellement_dangeureux']}</h1>
+                <h1 style="font-size:16px; font-weight: normal;">Surveillance collision : {latest_asteroid['sentry_surveillance_collisions']}</h1>
                 <h1 style="font-size:15px; font-weight: normal;"> Magnitude absolue: {latest_asteroid['magnitude_absolue']}</h1>  
                 <h1 style="font-size:15px; font-weight: normal;"> Diamètre estimé: Min {round(latest_asteroid['diametre_estime_min_m'], 2)} (m), Max {round(latest_asteroid['diametre_estime_max_m'], 2)} (m)</h1>  
                 <h1 style="font-size:15px; font-weight: normal;"> Vitesse relative en {latest_asteroid['date_approche'].year}: {round(latest_asteroid['vitesse_relative_km_par_seconde'], 2)} (km/s) </h1>  
@@ -464,7 +466,7 @@ with col1:
 
 with col2:
     # Filtre astéroïde   
-    filtered_df_ast = df[df['nom'].isin(selected_asteroide)]
+    filtered_df_ast = df[df['nom'] == selected_asteroide]
     filtered_df_ast['date_approche'] = pd.to_datetime(filtered_df_ast['date_approche'])
 
     if selected_asteroide and not filtered_df_ast.empty:
@@ -479,11 +481,11 @@ with col2:
         # Affichage du graphique dans Streamlit
         fig.update_traces(line=dict(color='#0077B6', width=2))
         fig.update_layout(
-        height=370,
+        height=480,
         plot_bgcolor="#050508", 
         paper_bgcolor="#050508",
         font_color="#DDE2E7", 
-        title_x= 0.15,
+        title_x= 0.07,
         title_font=dict(size=18, color='#DDE2E7'))
         st.plotly_chart(fig, use_container_width=True)
     
