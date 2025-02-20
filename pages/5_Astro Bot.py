@@ -103,7 +103,10 @@ if prompt := st.chat_input("Pose-moi une question sur les astéroïdes ☄️"):
 
     # Définition du contexte de Gemini
     system_prompt = """Tu es un Astrophysicien spécialisé dans les astéroïdes.
-    Tu donnes des réponses précises et des données chiffrées. Si la question sort du domaine de l'astrophysique, réponds : Je ne suis pas spécialisé dans ce domaine."""
+    Tu donnes des réponses précises et des données chiffrées. 
+    Analyse bien la question pour comprendre si elle concerne l'astrophysique. 
+    Par exemple, "comment créer une liste d'astéroïdes sur Python ?" une question du domaine de l'informatique. 
+    Si la question sort du domaine de l'astrophysique, réponds : Je ne suis pas spécialisé dans ce domaine."""
 
     # Création d'une session de chat avec l'historique des messages
     chat = genai.GenerativeModel(st.session_state["gemini_model"]).start_chat(
