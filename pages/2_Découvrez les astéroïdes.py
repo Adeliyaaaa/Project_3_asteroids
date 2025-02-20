@@ -123,7 +123,7 @@ with col_2:
     st.markdown(f"""
     <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align: center; width: 230px; height: 150px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
         <div>
-            <h2 style="font-size:18px; color: #DDE2E7; margin: 0;"> Nombre de collisions surveillées </h2>
+            <h2 style="font-size:18px; color: #DDE2E7; margin: 0;"> Nombre de surveillances collisions </h2>
             <h1 style="font-size:20px; color: #EAE0D5; margin: 0;">{total_collisions_surveillees}</h1>
         </div>
     </div>
