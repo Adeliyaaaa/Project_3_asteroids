@@ -214,20 +214,22 @@ if map_data and "last_object_clicked" in map_data and map_data["last_object_clic
                 if st.button(nom) : 
                     with col2: 
                         st.markdown(f"""
-                    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center; height:250px">
+                        <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center; height:330px">
+                        <br>
                         <h2 style="font-size:25px;"> {selected_row.loc[index, 'nom']} </h2>
-                        <h1 style="font-size:17px; font-weight: normal;"> est entré dans l'atmosphère terrestre le {selected_row.loc[index, 'date_entree_athmospherique']}. </h1>
-                        <h1 style="font-size:16px; font-weight: normal;">Potentiellement dangereux : {selected_row.loc[index, 'potentiellement_dangeureux']}</h1>
-                        <h1 style="font-size:16px; font-weight: normal;">Surveillance collision : {selected_row.loc[index, 'sentry_surveillance_collisions']}</h1>
+                        <h1 style="font-size:15px; font-weight: normal;">{selected_row.loc[index, 'description']}</h1>
+                        <h1 style="font-size:15px; font-weight: normal;"> Il est entré dans l'atmosphère terrestre le {selected_row.loc[index, 'date_entree_athmospherique']}. </h1>
                         </div> """, unsafe_allow_html=True)
                     with col3:
                         st.markdown(f"""
-                    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center; height:250px">
-                        <h1 style="font-size:16px; font-weight: normal;"> Magnitude absolue : {selected_row.loc[index, 'magnitude_absolue']}</h1>
-                        <h1 class="reduce-space" style="font-size:16px; font-weight: normal;"> Diamètre estimé : 
+                    <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center; height:330px">
+                        <h1 style="font-size:15px; font-weight: normal;"> Magnitude absolue : {selected_row.loc[index, 'magnitude_absolue']}</h1>
+                        <h1 class="reduce-space" style="font-size:15px; font-weight: normal;"> Diamètre estimé : 
                             Min {round(selected_row.loc[index, 'diametre_estime_min_m'],2)} m, Max {round(selected_row.loc[index, 'diametre_estime_max_m'],2)} m </h1>
-                        <h1 style="font-size:16px; font-weight: normal;"> Vitesse relative : {round(selected_row.loc[index, 'vitesse_relative_km_par_seconde'],2)} km/s </h1>
-                        <h1 style="font-size:16px; font-weight: normal;"> Type : {selected_row.loc[index, 'type']}</h1>
+                        <h1 style="font-size:15px; font-weight: normal;"> Vitesse relative : {round(selected_row.loc[index, 'vitesse_relative_km_par_seconde'],2)} km/s </h1>
+                        <h1 style="font-size:15px; font-weight: normal;"> Type : {selected_row.loc[index, 'type']}</h1>
+                        <h1 style="font-size:15px; font-weight: normal;">Potentiellement dangereux : {selected_row.loc[index, 'potentiellement_dangeureux']}</h1>
+                        <h1 style="font-size:15px; font-weight: normal;">Surveillance collision : {selected_row.loc[index, 'sentry_surveillance_collisions']}</h1>
                         </div> """, unsafe_allow_html=True)
 
 

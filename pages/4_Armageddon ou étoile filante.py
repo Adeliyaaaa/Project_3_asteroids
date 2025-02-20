@@ -261,7 +261,7 @@ def similar_asteroids(
     title_x= 0.25)
     st.plotly_chart(fig, use_container_width=True)
 
-
+    st.markdown("<br><br>", unsafe_allow_html=True)
 
 # Filtres de la page : 
 if "page" not in st.session_state:
@@ -273,6 +273,128 @@ if st.session_state["page"] == "Armageddon ou étoile filante":
     asteroide = df_impact['nom_astéroïde'].unique()
 
     selection_asteroide = st.sidebar.selectbox("Choisissez un astéroïde :", asteroide)
+    st.sidebar.markdown("<br><br><br><br><br><br><br>", unsafe_allow_html=True)
 
     similar_asteroids(selection_asteroide)
 
+
+    button_css = """
+        <style>
+        .stButton > button {
+            background-color: #050508;
+            color: DDE2E7 !important;
+            border: 1px solid #DDE2E7;
+            border-radius: 15px;
+            center: left;
+            font-size: 22px;
+            font-weight: bold; /* Ajoute la police en gras */
+            padding: 10px 20px;
+            height:10px;
+            width: 240px;
+            transition: background-color 0.3s ease;
+        }
+        .stButton > button:hover {
+            background-color: #13151D;
+            border: 3px solid #DDE2E7;
+            font-size: 24px;
+            color: DDE2E7 !important;
+        }
+        .stButton > button:active {
+        background-color: #807E75; /* Couleur lorsque le bouton est cliqué */
+        border: 5px solid #DDE2E7 !important;
+        font-size: 26px !important;
+        }
+        </style>
+    """
+
+    # Injecter le CSS dans l'application
+    st.markdown(button_css, unsafe_allow_html=True)
+    
+    st.sidebar.markdown(
+    "<h3 style='text-align: center;'>L'astéroïde 2024 YR4 :</h3>",
+    unsafe_allow_html=True)
+
+    if st.sidebar.button('(2024 YR4)'): 
+        df_yr4 = get_data("""
+                select 
+                    nom, 
+                    magnitude_absolue, 
+                    diametre_estime_min_m , 
+                    diametre_estime_max_m , 
+                    potentiellement_dangeureux, 
+                    sentry_surveillance_collisions,
+                    to_char(date_approche, 'YYYY-MM-DD') as date_approche,
+                    to_char(date_approche, 'DD-MM-YYYY') as date_approche_format_fr, 
+                    vitesse_relative_km_par_seconde, 
+                    vitesse_relative_km_par_heure,
+                    distance_de_la_terre, 
+                    description,
+                    type,
+                    to_char(date_decouverte, 'DD-MM-YYYY') as date_decouverte
+                from asteroids1 a 
+                where nom = '(2024 YR4)'
+                order by date_approche DESC;
+                """)
+        st.markdown(f"""
+        <div style="background-color:rgba(5, 5, 8, 0.8); padding:5px; text-align:center;">
+        <h2 style='custom-text'>2024 YR4 </h2>""", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        col1, col2 = st.columns(2)
+        with col1 : 
+            st.markdown(f"""
+                    <div style="background-color:rgba(5, 5, 8, 0.8); padding:5px; text-align:center;">
+                    <br><br>
+                    <p class='custom-text'>YR4, récemment découvert par les astronomes, a désormais 3,1 % de chances de frapper la Terre en 2032, 
+                        le niveau le plus élevé jamais enregistré depuis le début de la surveillance, 
+                        selon les calculs mardi de la Nasa.<br> </p>""", unsafe_allow_html=True)
+            st.markdown(f"""
+                    <div style="background-color:rgba(5, 5, 8, 0.8); padding:5px; text-align:center;">
+                    <p class='custom-text'>Estimé entre 40 et 90 mètres de large, 
+                        cet astéroïde pourrait percuter la Terre le 22 décembre 2032, selon les estimations d’agences spatiales 
+                        internationales et potentiellement causer des dommages considérables, comme détruire une ville. 
+                        Une prévision à prendre toutefois avec des pincettes car elle est fondée sur des données préliminaires 
+                        et est amenée à évoluer dans les semaines et mois qui viennent, insistent des experts interrogés par l’AFP. 
+                        <br> </p>""", unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
+        
+        with col2: 
+            st.image("https://www.cite-espace.com/assets/uploads/asteroid-artist-s-impression.jpg")
+
+        col1, col2= st.columns(2)
+        with col1: 
+            st.markdown(f"""
+            <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center; height:330px">
+            <br>
+            <h2 style="font-size:25px;"> (2024 YR4)</h2>
+            <h1 style="font-size:17px; font-weight: normal;">{df_yr4.loc[0, 'description']}</h1>
+            <h1 style="font-size:17px; font-weight: normal;">Il a été découvert le {df_yr4.loc[0, 'date_decouverte']}</h1>        
+            </div> """, unsafe_allow_html=True)
+        with col2:
+            st.markdown(f"""
+            <div style="background-color:#050508; padding:5px; border-radius:5px; border: 1px solid #DDE2E7; text-align:center; height:330px">
+            <h1 style="font-size:17px; font-weight: normal;"> Magnitude absolue : {df_yr4.loc[0, 'magnitude_absolue']}</h1>
+            <h1 class="reduce-space" style="font-size:17px; font-weight: normal;"> Diamètre estimé : 
+            Min {round(df_yr4.loc[0, 'diametre_estime_min_m'],2)} m, Max {round(df_yr4.loc[0, 'diametre_estime_max_m'],2)} m </h1>
+            <h1 style="font-size:17px; font-weight: normal;"> Vitesse relative le {df_yr4.loc[0, 'date_approche_format_fr']}: {round(df_yr4.loc[0, 'vitesse_relative_km_par_seconde'],2)} km/s </h1>
+            <h1 style="font-size:17px; font-weight: normal;"> Type : {df_yr4.loc[0, 'type']}</h1>
+            <h1 style="font-size:15px; font-weight: normal;">Potentiellement dangereux : {df_yr4.loc[0, 'potentiellement_dangeureux']}</h1>
+            <h1 style="font-size:15px; font-weight: normal;">Surveillance collision : {df_yr4.loc[0, 'sentry_surveillance_collisions']}</h1>
+            </div> """, unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        fig = px.line(df_yr4, 
+                                x='date_approche', 
+                                y='vitesse_relative_km_par_seconde', 
+                                title=f"Dates lorsque l'astéroïde (2024 YR4) passe près de la Terre ainsi que sa vitesse relative", 
+                                labels={"date_approche": "Dates d'approche", "vitesse_relative_km_par_seconde":"Vitesse relative km/s"},
+                                markers=True)
+                # Option 2 : Afficher toutes les dates disponibles
+        fig.update_xaxes(tickformat="%Y-%m-%d", tickvals=df_yr4['date_approche'], tickangle=-45)
+        # Affichage du graphique dans Streamlit
+        fig.update_traces(line=dict(color='#0077B6', width=2))
+        fig.update_layout(
+        plot_bgcolor="#050508", 
+        paper_bgcolor="#050508",
+        font_color="#DDE2E7",  # Texte 
+        title_x= 0.15)
+        st.plotly_chart(fig, use_container_width=True)
