@@ -1,7 +1,7 @@
 .env
 postgresql_railway.txt
 .ignore/
-Docker/repo_to_clone/.env
+Docker/.env
 .streamlit/
 .streamlit/secrets.toml
 /__pycache__
